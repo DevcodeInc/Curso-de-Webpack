@@ -1,16 +1,31 @@
 const path = require("path")
+const BundleAnalyzerPlugin = 
+    require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
-	entry: "./src/index.js",
+	entry: {
+		vendor: ["react", "react-dom"],
+    app: "./src/index.js",
+    contact: "./src/contact.js"
+	},
 	output: {
-		filename: "bundle.js",
+		filename: "[name].bundle.js",
 		path: path.join(__dirname, "dist")
   },
-  devServer: {
-    contentBase: path.join(__dirname, "dist"),
-		port: 8080
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: 'initial',
+          test: 'vendor',
+          name: 'vendor',
+          enforce: true
+        }
+      }
+    }
   },
-  devtool: "inline-source-map",
   module: {
     rules: [{
       test: /.js$/,
@@ -40,5 +55,10 @@ module.exports = {
         {loader: "url-loader"}
       ]
     }]
-  }
+  },
+  plugins: [
+    new BundleAnalyzerPlugin(),
+    new CleanWebpackPlugin(['dist']),
+    new UglifyJSPlugin()
+  ]
 }
